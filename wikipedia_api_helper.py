@@ -1,3 +1,6 @@
+# Scraping for 'Official website' returned more precise results.
+# I leave this herre for demo purposes.
+
 import requests
 
 S = requests.Session()
