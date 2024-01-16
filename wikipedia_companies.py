@@ -124,4 +124,4 @@ for company_identifier, links in official_links.items():
             company_links.insert_official_company_pages(company_identifier, official_link)
     else:
         print(f"No official website links found for company {company_identifier}\
-              with the link text "{link_text_to_find}".")
+              with the link text '{link_text_to_find}'.")
