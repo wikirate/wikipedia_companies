@@ -5,23 +5,26 @@ from wikirate4py import API
 from typing import Dict, List, Optional
 
 
+LINK_TEXT_TO_FIND = "Official website"
 class WikipediaCompanyLinks:
     """
     Class to handle fetching and processing official company websites from
     Wikipedia.
     """
 
-    def __init__(self, api_key: str, url: str, user: str, password: str):
+    def __init__(self, api_key: str):
         """
-        Initialize the class with an API key.
+        Initialize the class with an API key. URL, user, and password are optionally 
+        read from environment variables.
 
         Args:
             api_key (str): The API key for authentication.
         """
-        self.api = API(api_key,
-                       wikirate_api_url=url,
-                       auth=(user, password)
-                       )
+        url = config("URL", default=None)
+        user = config("USER", default=None)
+        password = config("PASSWORD", default=None)
+
+        self.api = API(api_key, wikirate_api_url=url, auth=(user, password) if user and password else None)
 
     def fetch_wikipedia_content(self, page_title: str) -> Optional[str]:
         """
@@ -115,14 +118,8 @@ class WikipediaCompanyLinks:
         self.api.update_company(identifier, website=official_company_link)
 
 
-api_key = config("API_KEY")
-url = config("URL")
-user = config("USER")
-password = config("PASSWORD")
-link_text_to_find = "Official website"
-
-company_links = WikipediaCompanyLinks(api_key, url, user, password)
-official_links = company_links.get_official_website_links(link_text_to_find)
+company_links = WikipediaCompanyLinks(config("API_KEY"))
+official_links = company_links.get_official_website_links(LINK_TEXT_TO_FIND)
 
 for company_identifier, links in official_links.items():
     if links:
@@ -130,4 +127,4 @@ for company_identifier, links in official_links.items():
             company_links.insert_official_company_pages(company_identifier, official_link)
     else:
         print(f"No official website links found for company {company_identifier}\
-              with the link text '{link_text_to_find}'.")
+              with the link text '{LINK_TEXT_TO_FIND}'.")
