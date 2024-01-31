@@ -11,14 +11,17 @@ class WikipediaCompanyLinks:
     Wikipedia.
     """
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, url: str, user: str, password: str):
         """
         Initialize the class with an API key.
 
         Args:
             api_key (str): The API key for authentication.
         """
-        self.api = API(api_key)
+        self.api = API(api_key,
+                       wikirate_api_url=url,
+                       auth=(user, password)
+                       )
 
     def fetch_wikipedia_content(self, page_title: str) -> Optional[str]:
         """
@@ -109,13 +112,16 @@ class WikipediaCompanyLinks:
             official_company_link (str): The official website link of the
             company.
         """
-        self.api.update_company(identifier, official_company_link=official_company_link)
+        self.api.update_company(identifier, website=official_company_link)
 
 
 api_key = config("API_KEY")
+url = config("URL")
+user = config("USER")
+password = config("PASSWORD")
 link_text_to_find = "Official website"
 
-company_links = WikipediaCompanyLinks(api_key)
+company_links = WikipediaCompanyLinks(api_key, url, user, password)
 official_links = company_links.get_official_website_links(link_text_to_find)
 
 for company_identifier, links in official_links.items():
