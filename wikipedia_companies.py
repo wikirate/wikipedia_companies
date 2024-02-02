@@ -1,4 +1,5 @@
 import requests
+import wikirate4py
 from bs4 import BeautifulSoup
 from decouple import config
 from wikirate4py import API
@@ -24,7 +25,11 @@ class WikipediaCompanyLinks:
         user = config("USER", default=None)
         password = config("PASSWORD", default=None)
 
-        self.api = API(api_key, wikirate_api_url=url, auth=(user, password) if user and password else None)
+        if url and user and password:
+            self.api = API(api_key, wikirate_api_url=url, auth=(user, password))
+        else:
+            self.api = API(api_key)
+
 
     def fetch_wikipedia_content(self, page_title: str) -> Optional[str]:
         """
@@ -99,11 +104,17 @@ class WikipediaCompanyLinks:
             Dict[str, List[str]]: A dictionary where each key is a company
             identifier and the value is a list of official website URLs.
         """
-        companies = self.api.get_companies()
-        wikipedia_urls = [{company.id: company.wikipedia_url} for company in companies if company.wikipedia_url is not None]
+        # cursor = wikirate4py.Cursor(self.api.get_companies, per_page=100)
+        # companies = []
+        # while cursor.has_next():
+        #     companies += cursor.next()
 
-        official_links = self.extract_official_website_links(wikipedia_urls, link_text_to_find)
-
+        offset = 0
+        while offset <= 1000:
+            companies = self.api.get_companies(offset=offset)
+            offset += 20
+            wikipedia_urls = [{company.id: company.wikipedia_url} for company in companies if company.wikipedia_url is not None]
+            official_links = self.extract_official_website_links(wikipedia_urls, link_text_to_find)
         return official_links
 
     def insert_official_company_pages(self, identifier: str, official_company_link: str):
@@ -120,6 +131,8 @@ class WikipediaCompanyLinks:
 
 company_links = WikipediaCompanyLinks(config("API_KEY"))
 official_links = company_links.get_official_website_links(LINK_TEXT_TO_FIND)
+# Format to manually test specific company:
+# official_links = {8994: ['https://about.google']}
 
 for company_identifier, links in official_links.items():
     if links:

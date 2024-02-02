@@ -41,4 +41,4 @@ tzdata==2023.4
 urllib3==2.1.0
 wcwidth==0.2.13
 Wikipedia-API==0.6.0
-wikirate4py @ git+https://github.com/wikirate/wikirate4py.git@27976c3a5e27962db467559cc0c6e0af55cd9578
+wikirate4py @ git+https://github.com/wikirate/wikirate4py.git@a8d8821ae8b1f79be2dc62422a7b5c8bc751d581
